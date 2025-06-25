@@ -36,6 +36,7 @@
         Sorry, your browser does not support canvas.
     </canvas>
     <script lang="javascript">
+        let fullscreen = false;
         let msPrev = window.performance.now();
         const fps = 120;
         const msPerFrame = 1000 / fps;
@@ -110,20 +111,53 @@
             // redraw();
         }
 
+
+
+        function handleInteraction(event) {
+        // if (!fullscreen) {
+        document.body.requestFullscreen();
+        //     fullscreen = true
+        // }
+        let x, y;
+        if (event.type === 'pointerdown') {
+            x = event.clientX;
+            y = event.clientY;
+            // 
+            console.log(`${event.pointerType} at: (${x}, ${y})`);
+        } else if (event.type === 'touchstart') {
+            event.preventDefault(); // Prevent click
+            const touch = event.touches[event.touches.length-1];
+            x = touch.clientX;
+            y = touch.clientY;
+            console.log(`Touch at: (${x}, ${y})`);
+        } else if (event.type === 'click') {
+            x = event.clientX;
+            y = event.clientY;
+            console.log(`Click at: (${x}, ${y})`);
+        }
+        spawnRipple(x, y);
+        }
+
         // Create new Ripple at mouse coordinates
         canvas.addEventListener("click", (e) => {
-            const x = e.clientX - canvas.getBoundingClientRect().left;
-            const y = e.clientY - canvas.getBoundingClientRect().top;
+            handleInteraction(e);
+        });
+        canvas.addEventListener("touchstart", (e) => {
+            handleInteraction(e);
+        });
+
+        function spawnRipple(x, y) {
             new Ripple(x, y, 1, 8, window.performance.now())
             // dripSound.play()
             snd = getRandomItem(dripSounds)
             snd.currentTime = 0
             snd.play()
+            // TEST VIBRATION
+            navigator.vibrate(30)
             // const copy = snd.cloneNode(true);
             // copy.play()
             // console.log(ripples)
-        });
-
+        }
         // BEGIN GAME LOOP
         function gameLoop() {
         requestAnimationFrame(gameLoop);
