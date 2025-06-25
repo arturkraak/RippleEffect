@@ -91,7 +91,7 @@
             }
         }
 
-        // Flip background image
+        // Flip background image periodically
         // let body = document.getElementsByClassName('background-container')[0];
         // setInterval(flip_bg, 1000)
         // function flip_bg() {
@@ -117,8 +117,10 @@
             new Ripple(x, y, 1, 8, window.performance.now())
             // dripSound.play()
             snd = getRandomItem(dripSounds)
-            const copy = snd.cloneNode(true);
-            copy.play()
+            snd.currentTime = 0
+            snd.play()
+            // const copy = snd.cloneNode(true);
+            // copy.play()
             // console.log(ripples)
         });
 
