@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ripple</title>
+    <link rel="icon" type="image/png" href="water.png" />
+    <style>
+    html, body {
+        width:  100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+    }
+    /* Style the background container */
+    .background-container {
+      position: fixed; /* Cover the entire viewport */
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('water.png');
+      background-size: 200px 200px; /* Adjust to your image size */
+      image-rendering: pixelated; /* Keep pixel art crisp */
+      transform: scaleX(-1); /* Flip only the background horizontally */
+      z-index: -1; /* Place behind content */
+    }
+
+    /* Ensure body content is not flipped */
+    body {
+      margin: 0;
+      /* No transform or background here */
+    }
+  </style>
+</head>
+<body>
+    <div class="background-container"></div>
+    <canvas id="myCanvas" width="200" height="100" style="border:1px solid #000000;">
+        Sorry, your browser does not support canvas.
+    </canvas>
+    <script lang="javascript">
+        let msPrev = window.performance.now();
+        const fps = 120;
+        const msPerFrame = 1000 / fps;
+        const ripples = [];
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+        ctx.canvas.width  = window.innerWidth;
+        ctx.canvas.height = window.innerHeight;
+        LIGHT_BLUE = "rgb(20, 55, 255)"
+
+        dripSounds = []
+        for (let i = 1; i < 10; i++) {
+            dripSounds.push(new Audio(`snd/drip/drip${i}.ogg`))
+        }
+        
+        function getRandomItem(arr) {
+            const index = Math.floor(Math.random() * arr.length);
+            return arr[index];
+        }
+
+        class Ripple{
+            constructor(x, y, r, w, t, color = LIGHT_BLUE, spawned = false) {
+                this.x = x;
+                this.y = y;
+                this.r = r;
+                this.w = w;
+                this.t = t;
+                this.color = color;
+                this.spawned = spawned;
+                ripples.push(this)
+            }
+            draw(){
+                ctx.lineWidth = this.w;
+                ctx.strokeStyle = LIGHT_BLUE
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
+                ctx.stroke();
+            }
+            update(msNow) {
+                if (this.r > ctx.canvas.width / 2) {
+                    ripples.shift()
+                }
+
+                this.r += 5
+                if (!this.spawned) {
+                    if(msNow > this.t + 300){
+                        if (this.w > 1) {
+                            new Ripple(this.x, this.y, 1, this.w - 1, msNow)
+                            this.spawned = true
+                        }
+                    }
+                }
+            }
+        }
+
+        // Flip background image
+        let body = document.getElementsByClassName('background-container')[0];
+        setInterval(flip_bg, 1000)
+        function flip_bg() {
+            if (body.style.transform != "scaleX(-1)") {
+                body.style.transform = "scaleX(-1)"
+            } else {
+                body.style.transform = "scaleX(1)"
+            }
+        }
+
+        // Create new Ripple at mouse coordinates
+        canvas.addEventListener("click", (e) => {
+            const x = e.clientX - canvas.getBoundingClientRect().left;
+            const y = e.clientY - canvas.getBoundingClientRect().top;
+            new Ripple(x, y, 1, 8, window.performance.now())
+            // dripSound.play()
+            snd = getRandomItem(dripSounds)
+            const copy = snd.cloneNode(true);
+            copy.play()
+            // console.log(ripples)
+        });
+
+        // BEGIN GAME LOOP
+        function gameLoop() {
+        requestAnimationFrame(gameLoop);
+        const msNow = window.performance.now();
+        const msPassed = msNow - msPrev;
+
+        if (msPassed < msPerFrame) {
+            return;
+        }
+
+        msPrev = msNow;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ripples.forEach((e) => {
+            e.draw()
+            e.update(msNow)
+        });
+    }
+
+    // Start the game loop
+    gameLoop();
+    </script>
+</body>
+</html>
