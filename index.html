@@ -12,6 +12,9 @@
         margin: 0;
         overflow: hidden;
     }
+    canvas {
+            display: block; /* Prevents scrollbars */
+    }
     /* Style the background container */
     .background-container {
       position: fixed; /* Cover the entire viewport */
@@ -24,12 +27,6 @@
       image-rendering: pixelated; /* Keep pixel art crisp */
       transform: scaleX(-1); /* Flip only the background horizontally */
       z-index: -1; /* Place behind content */
-    }
-
-    /* Ensure body content is not flipped */
-    body {
-      margin: 0;
-      /* No transform or background here */
     }
   </style>
 </head>
@@ -95,14 +92,22 @@
         }
 
         // Flip background image
-        let body = document.getElementsByClassName('background-container')[0];
-        setInterval(flip_bg, 1000)
-        function flip_bg() {
-            if (body.style.transform != "scaleX(-1)") {
-                body.style.transform = "scaleX(-1)"
-            } else {
-                body.style.transform = "scaleX(1)"
-            }
+        // let body = document.getElementsByClassName('background-container')[0];
+        // setInterval(flip_bg, 1000)
+        // function flip_bg() {
+        //     if (body.style.transform != "scaleX(-1)") {
+        //         body.style.transform = "scaleX(-1)"
+        //     } else {
+        //         body.style.transform = "scaleX(1)"
+        //     }
+        // }
+
+        // Function to resize canvas to window size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Optional: Redraw content after resize
+            // redraw();
         }
 
         // Create new Ripple at mouse coordinates
@@ -133,10 +138,19 @@
             e.draw()
             e.update(msNow)
         });
+        
+
     }
 
     // Start the game loop
     gameLoop();
+
+    // Initial resize
+    resizeCanvas();
+
+    // Resize event listener for window resize and orientation change
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
     </script>
 </body>
 </html>
