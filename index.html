@@ -1,49 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ripple</title>
     <link rel="icon" type="image/png" href="water.png" />
     <style>
-    html, body {
-        width:  100%;
-        height: 100%;
-        margin: 0;
-        overflow: hidden;
-    }
-    canvas {
-            display: block; /* Prevents scrollbars */
-    }
-    /* Style the background container */
-    .background-container {
-      position: fixed; /* Cover the entire viewport */
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-image: url('water.png');
-      background-size: 200px 200px; /* Adjust to your image size */
-      image-rendering: pixelated; /* Keep pixel art crisp */
-      transform: scaleX(-1); /* Flip only the background horizontally */
-      z-index: -1; /* Place behind content */
-    }
-  </style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('water.png');
+            background-size: 200px 200px;
+            image-rendering: pixelated;
+            transform: scaleX(-1);
+            z-index: -1;
+        }
+    </style>
 </head>
+
 <body>
     <div class="background-container"></div>
     <canvas id="myCanvas" width="200" height="100" style="border:1px solid #000000;">
         Sorry, your browser does not support canvas.
     </canvas>
     <script lang="javascript">
-        let fullscreen = false;
         let msPrev = window.performance.now();
         const fps = 120;
         const msPerFrame = 1000 / fps;
         const ripples = [];
         const canvas = document.getElementById("myCanvas");
         const ctx = canvas.getContext("2d");
-        ctx.canvas.width  = window.innerWidth;
+        ctx.canvas.width = window.innerWidth;
         ctx.canvas.height = window.innerHeight;
         LIGHT_BLUE = "rgb(20, 55, 255)"
 
@@ -51,13 +54,13 @@
         for (let i = 1; i < 10; i++) {
             dripSounds.push(new Audio(`snd/drip/drip${i}.ogg`))
         }
-        
+
         function getRandomItem(arr) {
             const index = Math.floor(Math.random() * arr.length);
             return arr[index];
         }
 
-        class Ripple{
+        class Ripple {
             constructor(x, y, r, w, t, color = LIGHT_BLUE, spawned = false) {
                 this.x = x;
                 this.y = y;
@@ -68,13 +71,15 @@
                 this.spawned = spawned;
                 ripples.push(this)
             }
-            draw(){
+
+            draw() {
                 ctx.lineWidth = this.w;
                 ctx.strokeStyle = LIGHT_BLUE
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
+                ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
                 ctx.stroke();
             }
+
             update(msNow) {
                 if (this.r > ctx.canvas.width / 2) {
                     ripples.shift()
@@ -82,7 +87,7 @@
 
                 this.r += 5
                 if (!this.spawned) {
-                    if(msNow > this.t + 300){
+                    if (msNow > this.t + 300) {
                         if (this.w > 1) {
                             new Ripple(this.x, this.y, 1, this.w - 1, msNow)
                             this.spawned = true
@@ -107,35 +112,27 @@
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            // Optional: Redraw content after resize
-            // redraw();
         }
-
-
 
         function handleInteraction(event) {
-        // if (!fullscreen) {
-        document.body.requestFullscreen();
-        //     fullscreen = true
-        // }
-        let x, y;
-        if (event.type === 'pointerdown') {
-            x = event.clientX;
-            y = event.clientY;
-            // 
-            console.log(`${event.pointerType} at: (${x}, ${y})`);
-        } else if (event.type === 'touchstart') {
-            event.preventDefault(); // Prevent click
-            const touch = event.touches[event.touches.length-1];
-            x = touch.clientX;
-            y = touch.clientY;
-            console.log(`Touch at: (${x}, ${y})`);
-        } else if (event.type === 'click') {
-            x = event.clientX;
-            y = event.clientY;
-            console.log(`Click at: (${x}, ${y})`);
-        }
-        spawnRipple(x, y);
+            document.body.requestFullscreen();
+            let x, y;
+            if (event.type === 'pointerdown') {
+                x = event.clientX;
+                y = event.clientY;
+                console.log(`${event.pointerType} at: (${x}, ${y})`);
+            } else if (event.type === 'touchstart') {
+                event.preventDefault(); // Prevent click
+                const touch = event.touches[event.touches.length - 1];
+                x = touch.clientX;
+                y = touch.clientY;
+                console.log(`Touch at: (${x}, ${y})`);
+            } else if (event.type === 'click') {
+                x = event.clientX;
+                y = event.clientY;
+                console.log(`Click at: (${x}, ${y})`);
+            }
+            spawnRipple(x, y);
         }
 
         // Create new Ripple at mouse coordinates
@@ -148,7 +145,6 @@
 
         function spawnRipple(x, y) {
             new Ripple(x, y, 1, 8, window.performance.now())
-            // dripSound.play()
             snd = getRandomItem(dripSounds)
             snd.currentTime = 0
             snd.play()
@@ -158,35 +154,36 @@
             // copy.play()
             // console.log(ripples)
         }
-        // BEGIN GAME LOOP
-        function gameLoop() {
-        requestAnimationFrame(gameLoop);
-        const msNow = window.performance.now();
-        const msPassed = msNow - msPrev;
 
-        if (msPassed < msPerFrame) {
-            return;
+        // GAMELOOP
+        function gameLoop() {
+            requestAnimationFrame(gameLoop);
+            const msNow = window.performance.now();
+            const msPassed = msNow - msPrev;
+
+            if (msPassed < msPerFrame) {
+                return;
+            }
+
+            msPrev = msNow;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ripples.forEach((e) => {
+                e.draw()
+                e.update(msNow)
+            });
+
         }
 
-        msPrev = msNow;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ripples.forEach((e) => {
-            e.draw()
-            e.update(msNow)
-        });
-        
+        // Start the gameloop
+        gameLoop();
 
-    }
+        // Initial resize
+        resizeCanvas();
 
-    // Start the game loop
-    gameLoop();
-
-    // Initial resize
-    resizeCanvas();
-
-    // Resize event listener for window resize and orientation change
-    window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('orientationchange', resizeCanvas);
+        // Resize event listener for window resize and orientation change
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('orientationchange', resizeCanvas);
     </script>
 </body>
+
 </html>
